@@ -2,17 +2,43 @@ import { useState } from "react";
 import { Plus, Shield, ShieldCheck } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
-import { users } from "@/data/mock";
+import { users as initialUsers, User } from "@/data/mock";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function UsersPage() {
+  const [userList, setUserList] = useState<User[]>(initialUsers);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newRole, setNewRole] = useState<"admin" | "user">("user");
+
+  const handleAddUser = () => {
+    if (!newName || !newEmail) return;
+    const newUser: User = {
+      id: `u${Date.now()}`,
+      name: newName,
+      email: newEmail,
+      role: newRole,
+      lastActive: new Date().toISOString(),
+    };
+    setUserList((prev) => [newUser, ...prev]);
+    setNewName("");
+    setNewEmail("");
+    setNewRole("user");
+    setShowAddUser(false);
+  };
+
   return (
     <AppLayout>
       <TopBar
         title="User Management"
         subtitle="Manage team members and roles"
-        actions={<Button size="sm" className="h-8 text-xs gap-1.5"><Plus className="w-3.5 h-3.5" />Add User</Button>}
+        actions={<Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => setShowAddUser(true)}><Plus className="w-3.5 h-3.5" />Add User</Button>}
       />
       <div className="flex-1 overflow-y-auto p-6">
         <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
@@ -25,7 +51,7 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
+              {userList.map((user) => (
                 <tr key={user.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
@@ -54,6 +80,41 @@ export default function UsersPage() {
           </table>
         </div>
       </div>
+
+      {/* Add User Dialog */}
+      <Dialog open={showAddUser} onOpenChange={(o) => !o && setShowAddUser(false)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base">Add New User</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Full Name</Label>
+              <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. John Doe" className="h-9 text-sm" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Email</Label>
+              <Input value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="john@company.com" type="email" className="h-9 text-sm" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Role</Label>
+              <Select value={newRole} onValueChange={(v) => setNewRole(v as "admin" | "user")}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setShowAddUser(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleAddUser} disabled={!newName || !newEmail}>Add User</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
