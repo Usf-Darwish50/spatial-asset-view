@@ -101,7 +101,7 @@ export const users: User[] = [
   { id: "u5", name: "Alex Chen", email: "alex@company.com", role: "user", lastActive: "2025-03-27T11:00:00Z" },
 ];
 
-export const assetTypes = ["HVAC", "Safety", "IT Equipment", "Transport", "Security", "Electrical", "Plumbing"];
+export const assetTypes = ["HVAC", "Safety", "IT Equipment", "Transport", "Security", "Electrical", "Plumbing", "Pipe Box"];
 
 export function getStatusColor(status: AssetStatus): string {
   switch (status) {
