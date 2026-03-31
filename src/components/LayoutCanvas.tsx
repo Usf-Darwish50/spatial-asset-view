@@ -1,27 +1,121 @@
-import { useCallback, useRef, useState, useEffect } from "react";
-import { Asset, AssetStatus, getStatusColor } from "@/data/mock";
+import { useCallback, useRef, useState } from "react";
+import { Asset, AssetStatus, AssetShape } from "@/data/mock";
 import { cn } from "@/lib/utils";
-import { ZoomIn, ZoomOut, Maximize2, Move } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2, Crosshair } from "lucide-react";
 
 interface LayoutCanvasProps {
   assets: Asset[];
   onAssetClick: (asset: Asset) => void;
   onAssetMove: (assetId: string, x: number, y: number) => void;
   selectedAssetId?: string;
+  placingMode?: boolean;
+  onPlaceAsset?: (x: number, y: number) => void;
 }
 
-export function LayoutCanvas({ assets, onAssetClick, onAssetMove, selectedAssetId }: LayoutCanvasProps) {
+const statusColorMap: Record<AssetStatus, string> = {
+  working: "#22c55e",
+  down: "#ef4444",
+  maintenance: "#eab308",
+};
+
+const CANVAS_W = 1000;
+const CANVAS_H = 700;
+
+function AssetMarker({
+  asset,
+  isSelected,
+  isHovered,
+  onMouseDown,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
+}: {
+  asset: Asset;
+  isSelected: boolean;
+  isHovered: boolean;
+  onMouseDown: (e: React.MouseEvent) => void;
+  onClick: (e: React.MouseEvent) => void;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+}) {
+  if (asset.x === undefined || asset.y === undefined) return null;
+  const color = statusColorMap[asset.status];
+  const isRect = asset.shape === "rectangle";
+
+  return (
+    <div
+      className="absolute group"
+      style={{
+        left: asset.x - (isRect ? 24 : 14),
+        top: asset.y - (isRect ? 10 : 14),
+        zIndex: isSelected || isHovered ? 50 : 10,
+      }}
+      onMouseDown={onMouseDown}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      {isRect ? (
+        <div
+          className={cn(
+            "w-12 h-5 rounded-sm flex items-center justify-center cursor-pointer transition-all",
+            isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-canvas-bg scale-110" : "hover:scale-105",
+            asset.status === "down" && "status-pulse-down"
+          )}
+          style={{ backgroundColor: color + "20", border: `2px solid ${color}` }}
+        >
+          <div className="w-6 h-1.5 rounded-[1px]" style={{ backgroundColor: color }} />
+        </div>
+      ) : (
+        <div
+          className={cn(
+            "w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-all",
+            isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-canvas-bg scale-125" : "hover:scale-110",
+            asset.status === "down" && "status-pulse-down"
+          )}
+          style={{ backgroundColor: color + "20", border: `2px solid ${color}` }}
+        >
+          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+        </div>
+      )}
+
+      {/* Tooltip with image */}
+      {(isHovered || isSelected) && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-card border border-border rounded-lg shadow-lg px-3 py-2 whitespace-nowrap animate-fade-in pointer-events-none min-w-[140px]">
+          {asset.image && (
+            <img
+              src={asset.image}
+              alt={asset.name}
+              className="w-full h-16 object-cover rounded mb-1.5 bg-muted"
+            />
+          )}
+          <p className="text-[11px] font-semibold text-card-foreground">{asset.name}</p>
+          <p className="text-[10px] text-muted-foreground">
+            {asset.type} · <span style={{ color }}>{asset.status}</span>
+          </p>
+          <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-card border-r border-b border-border rotate-45 -mt-1" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function LayoutCanvas({
+  assets,
+  onAssetClick,
+  onAssetMove,
+  selectedAssetId,
+  placingMode,
+  onPlaceAsset,
+}: LayoutCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const [draggingAsset, setDraggingAsset] = useState<string | null>(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragOffset] = useState({ x: 0, y: 0 });
   const [hoveredAsset, setHoveredAsset] = useState<string | null>(null);
-
-  const CANVAS_W = 1000;
-  const CANVAS_H = 700;
 
   const handleZoomIn = () => setZoom((z) => Math.min(z + 0.2, 3));
   const handleZoomOut = () => setZoom((z) => Math.max(z - 0.2, 0.4));
@@ -33,7 +127,18 @@ export function LayoutCanvas({ assets, onAssetClick, onAssetMove, selectedAssetI
     setZoom((z) => Math.min(Math.max(z + delta, 0.4), 3));
   }, []);
 
+  const handleCanvasClick = (e: React.MouseEvent) => {
+    if (placingMode && onPlaceAsset) {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const x = (e.clientX - rect.left - pan.x) / zoom;
+      const y = (e.clientY - rect.top - pan.y) / zoom;
+      onPlaceAsset(Math.round(x), Math.round(y));
+    }
+  };
+
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (placingMode) return;
     if (draggingAsset) return;
     if (e.button === 0) {
       setIsPanning(true);
@@ -61,19 +166,13 @@ export function LayoutCanvas({ assets, onAssetClick, onAssetMove, selectedAssetI
   };
 
   const handleAssetMouseDown = (e: React.MouseEvent, asset: Asset) => {
+    if (placingMode) return;
     e.stopPropagation();
     setDraggingAsset(asset.id);
-    setDragOffset({ x: 0, y: 0 });
-  };
-
-  const statusColorMap: Record<AssetStatus, string> = {
-    working: "#22c55e",
-    down: "#ef4444",
-    maintenance: "#eab308",
   };
 
   return (
-    <div className="flex-1 relative overflow-hidden bg-canvas-bg">
+    <div className={cn("flex-1 relative overflow-hidden bg-canvas-bg", placingMode && "cursor-crosshair")}>
       {/* Toolbar */}
       <div className="absolute top-3 left-3 z-10 flex items-center gap-1 bg-card rounded-lg border border-border shadow-sm p-1">
         <button onClick={handleZoomIn} className="p-1.5 rounded-md hover:bg-secondary transition-colors" title="Zoom in">
@@ -90,6 +189,14 @@ export function LayoutCanvas({ assets, onAssetClick, onAssetMove, selectedAssetI
         <span className="text-[11px] font-medium text-muted-foreground px-2 tabular-nums">{Math.round(zoom * 100)}%</span>
       </div>
 
+      {/* Placing mode banner */}
+      {placingMode && (
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-primary text-primary-foreground rounded-lg shadow-lg px-4 py-2 text-xs font-medium animate-fade-in">
+          <Crosshair className="w-4 h-4" />
+          Click on the floor to place the asset
+        </div>
+      )}
+
       {/* Canvas */}
       <div
         ref={containerRef}
@@ -99,6 +206,7 @@ export function LayoutCanvas({ assets, onAssetClick, onAssetMove, selectedAssetI
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onClick={handleCanvasClick}
       >
         <div
           style={{
@@ -125,11 +233,8 @@ export function LayoutCanvas({ assets, onAssetClick, onAssetMove, selectedAssetI
 
           {/* Floor plan outline */}
           <div className="absolute inset-4 border-2 border-dashed border-border/60 rounded-xl" />
-          
-          {/* Room outlines for visual interest */}
-          <rect className="absolute" style={{ left: 40, top: 40, width: 280, height: 200 }}>
-            <div className="absolute border border-border/40 rounded-lg bg-card/30" style={{ left: 40, top: 40, width: 280, height: 200 }} />
-          </rect>
+
+          {/* Room outlines */}
           <div className="absolute border border-border/40 rounded-lg bg-card/30" style={{ left: 40, top: 40, width: 280, height: 200 }}>
             <span className="absolute top-2 left-3 text-[10px] text-muted-foreground/50 font-medium">Office A</span>
           </div>
@@ -153,43 +258,18 @@ export function LayoutCanvas({ assets, onAssetClick, onAssetMove, selectedAssetI
           </div>
 
           {/* Asset markers */}
-          {assets.map((asset) => {
-            if (asset.x === undefined || asset.y === undefined) return null;
-            const isSelected = selectedAssetId === asset.id;
-            const isHovered = hoveredAsset === asset.id;
-
-            return (
-              <div
-                key={asset.id}
-                className="absolute group"
-                style={{ left: asset.x - 14, top: asset.y - 14, zIndex: isSelected || isHovered ? 50 : 10 }}
-                onMouseDown={(e) => handleAssetMouseDown(e, asset)}
-                onClick={(e) => { e.stopPropagation(); onAssetClick(asset); }}
-                onMouseEnter={() => setHoveredAsset(asset.id)}
-                onMouseLeave={() => setHoveredAsset(null)}
-              >
-                {/* Outer ring */}
-                <div className={cn(
-                  "w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-all",
-                  isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-canvas-bg scale-125" : "hover:scale-110",
-                  asset.status === "down" && "status-pulse-down"
-                )}
-                  style={{ backgroundColor: statusColorMap[asset.status] + "20", border: `2px solid ${statusColorMap[asset.status]}` }}
-                >
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: statusColorMap[asset.status] }} />
-                </div>
-
-                {/* Tooltip */}
-                {(isHovered || isSelected) && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-card border border-border rounded-lg shadow-lg px-3 py-2 whitespace-nowrap animate-fade-in pointer-events-none">
-                    <p className="text-[11px] font-semibold text-card-foreground">{asset.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{asset.type} · <span style={{ color: statusColorMap[asset.status] }}>{asset.status}</span></p>
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-card border-r border-b border-border rotate-45 -mt-1" />
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {assets.map((asset) => (
+            <AssetMarker
+              key={asset.id}
+              asset={asset}
+              isSelected={selectedAssetId === asset.id}
+              isHovered={hoveredAsset === asset.id}
+              onMouseDown={(e) => handleAssetMouseDown(e, asset)}
+              onClick={(e) => { e.stopPropagation(); if (!placingMode) onAssetClick(asset); }}
+              onMouseEnter={() => setHoveredAsset(asset.id)}
+              onMouseLeave={() => setHoveredAsset(null)}
+            />
+          ))}
         </div>
       </div>
 
@@ -201,6 +281,11 @@ export function LayoutCanvas({ assets, onAssetClick, onAssetMove, selectedAssetI
             <span className="text-[11px] text-muted-foreground capitalize">{status}</span>
           </div>
         ))}
+        <div className="w-px h-4 bg-border" />
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-2 rounded-[1px] border border-muted-foreground/40" />
+          <span className="text-[11px] text-muted-foreground">Pipe/Duct</span>
+        </div>
       </div>
     </div>
   );
