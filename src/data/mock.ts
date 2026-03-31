@@ -18,6 +18,8 @@ export interface Floor {
   assetsCount: number;
 }
 
+export type AssetShape = "circle" | "rectangle";
+
 export interface Asset {
   id: string;
   name: string;
@@ -28,6 +30,8 @@ export interface Asset {
   floorId: string;
   x?: number;
   y?: number;
+  shape: AssetShape;
+  image?: string;
   lastUpdated: string;
   updatedBy: string;
   comments: AssetComment[];
