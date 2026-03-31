@@ -2,17 +2,43 @@ import { useState } from "react";
 import { Plus, Shield, ShieldCheck } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
-import { users } from "@/data/mock";
+import { users as initialUsers, User } from "@/data/mock";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function UsersPage() {
+  const [userList, setUserList] = useState<User[]>(initialUsers);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newRole, setNewRole] = useState<"admin" | "user">("user");
+
+  const handleAddUser = () => {
+    if (!newName || !newEmail) return;
+    const newUser: User = {
+      id: `u${Date.now()}`,
+      name: newName,
+      email: newEmail,
+      role: newRole,
+      lastActive: new Date().toISOString(),
+    };
+    setUserList((prev) => [newUser, ...prev]);
+    setNewName("");
+    setNewEmail("");
+    setNewRole("user");
+    setShowAddUser(false);
+  };
+
   return (
     <AppLayout>
       <TopBar
         title="User Management"
         subtitle="Manage team members and roles"
-        actions={<Button size="sm" className="h-8 text-xs gap-1.5"><Plus className="w-3.5 h-3.5" />Add User</Button>}
+        actions={<Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => setShowAddUser(true)}><Plus className="w-3.5 h-3.5" />Add User</Button>}
       />
       <div className="flex-1 overflow-y-auto p-6">
         <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">

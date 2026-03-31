@@ -81,6 +81,37 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Asset Types Breakdown */}
+        <div>
+          <h2 className="text-sm font-semibold text-foreground mb-3">Asset Types by Building</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {buildings.map((building) => {
+              const buildingAssets = assets.filter((a) => a.buildingId === building.id);
+              const typeCounts: Record<string, number> = {};
+              buildingAssets.forEach((a) => {
+                typeCounts[a.type] = (typeCounts[a.type] || 0) + 1;
+              });
+              return (
+                <div key={building.id} className="bg-card rounded-xl p-4 border border-border shadow-sm">
+                  <h3 className="text-[13px] font-semibold text-card-foreground mb-2">{building.name}</h3>
+                  {Object.keys(typeCounts).length > 0 ? (
+                    <div className="space-y-1.5">
+                      {Object.entries(typeCounts).sort((a, b) => b[1] - a[1]).map(([type, count]) => (
+                        <div key={type} className="flex items-center justify-between">
+                          <span className="text-[11px] text-muted-foreground">{type}</span>
+                          <span className="text-[11px] font-semibold text-card-foreground bg-secondary px-1.5 py-0.5 rounded">{count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-[11px] text-muted-foreground">No assets</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Recently updated */}
         <div>
           <h2 className="text-sm font-semibold text-foreground mb-3">Recently Updated</h2>
