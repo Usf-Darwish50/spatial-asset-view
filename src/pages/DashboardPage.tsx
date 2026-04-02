@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Building2, MapPin, Box, TrendingUp, AlertTriangle, Wrench } from "lucide-react";
+import { Building2, MapPin, Box, TrendingUp, AlertTriangle, Wrench, Fan, Laptop, Zap, HardHat, Car, Lock } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { StatusBadge } from "@/components/StatusBadge";
