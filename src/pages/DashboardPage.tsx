@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Building2, MapPin, Box, TrendingUp, AlertTriangle, Wrench } from "lucide-react";
+import { Building2, MapPin, Box, TrendingUp, AlertTriangle, Wrench, Fan, Laptop, Zap, HardHat, Car, Lock } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -91,13 +91,14 @@ export default function DashboardPage() {
                 globalTypeCounts[a.type] = (globalTypeCounts[a.type] || 0) + 1;
               });
               const typeIcons: Record<string, typeof Box> = {
-                "HVAC": Wrench,
-                "Electrical Panel": AlertTriangle,
-                "Fire Extinguisher": AlertTriangle,
-                "Security Camera": TrendingUp,
-                "Elevator": TrendingUp,
-                "Pipe Box": Box,
-                "Water Heater": Wrench,
+                "HVAC": Fan,
+                "IT Equipment": Laptop,
+                "Electrical": Zap,
+                "Pipe Box": Wrench,
+                "Safety": HardHat,
+                "Transport": Car,
+                "Security": Lock,
+                "Plumbing": Wrench,
               };
               return Object.entries(globalTypeCounts)
                 .sort((a, b) => b[1] - a[1])

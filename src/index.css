@@ -36,16 +36,16 @@
 
     --radius: 0.625rem;
 
-    /* Sidebar - soft blue-gray light */
-    --sidebar-background: 220 25% 95%;
-    --sidebar-foreground: 224 28% 25%;
-    --sidebar-primary: 230 80% 56%;
+    /* Sidebar - soft pastel lavender */
+    --sidebar-background: 240 40% 96%;
+    --sidebar-foreground: 240 20% 30%;
+    --sidebar-primary: 240 60% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 88%;
-    --sidebar-accent-foreground: 224 28% 12%;
-    --sidebar-border: 220 18% 85%;
-    --sidebar-ring: 230 80% 56%;
-    --sidebar-muted: 220 10% 46%;
+    --sidebar-accent: 240 30% 90%;
+    --sidebar-accent-foreground: 240 20% 15%;
+    --sidebar-border: 240 25% 88%;
+    --sidebar-ring: 240 60% 60%;
+    --sidebar-muted: 240 15% 50%;
 
     /* Status colors */
     --status-working: 152 60% 42%;
