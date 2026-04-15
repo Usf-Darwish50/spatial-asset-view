@@ -20,7 +20,6 @@ export function AppSidebar() {
       <div className="h-14 flex items-center gap-2.5 px-5 border-b border-sidebar-border">
         <img src={ntgLogo} alt="NTG Clarity Networks" className="h-8 w-auto" />
       </div>
-      </div>
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5">
