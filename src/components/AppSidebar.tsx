@@ -1,6 +1,7 @@
-import { Building2, LayoutDashboard, Box, Users, Layers } from "lucide-react";
+import { Building2, LayoutDashboard, Box, Users } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import ntgLogo from "@/assets/ntg-logo.jpeg";
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -17,10 +18,8 @@ export function AppSidebar() {
     <aside className="w-64 min-h-screen bg-sidebar flex flex-col border-r border-sidebar-border shrink-0">
       {/* Logo */}
       <div className="h-14 flex items-center gap-2.5 px-5 border-b border-sidebar-border">
-        <div className="w-7 h-7 rounded-lg bg-sidebar-primary flex items-center justify-center">
-          <Layers className="w-4 h-4 text-sidebar-primary-foreground" />
-        </div>
-        <span className="text-sm font-semibold text-sidebar-accent-foreground tracking-tight">AssetVision</span>
+        <img src={ntgLogo} alt="NTG Clarity Networks" className="h-8 w-auto" />
+      </div>
       </div>
 
       {/* Nav */}
