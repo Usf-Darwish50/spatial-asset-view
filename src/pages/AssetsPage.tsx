@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, FileSpreadsheet } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -7,12 +7,19 @@ import { assets, buildings, floors, AssetStatus, assetTypes } from "@/data/mock"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { AddAssetDialog } from "@/components/AddAssetDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
 
 export default function AssetsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [buildingFilter, setBuildingFilter] = useState<string>("all");
   const [floorFilter, setFloorFilter] = useState<string>("all");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
 
   const availableFloors = buildingFilter !== "all"
     ? floors.filter((f) => f.buildingId === buildingFilter)
@@ -28,6 +35,13 @@ export default function AssetsPage() {
   const handleBuildingChange = (value: string) => {
     setBuildingFilter(value);
     setFloorFilter("all");
+  };
+
+  const handleImport = () => {
+    if (!importFile) return;
+    toast({ title: "Import Started", description: `Importing assets from ${importFile.name}...` });
+    setImportDialogOpen(false);
+    setImportFile(null);
   };
 
   return (
@@ -71,9 +85,21 @@ export default function AssetsPage() {
               </SelectContent>
             </Select>
           )}
-          <Button size="sm" className="h-8 text-xs gap-1.5 ml-auto" onClick={() => setAddDialogOpen(true)}>
-            <Plus className="w-3.5 h-3.5" /> Add Asset
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" className="h-8 text-xs gap-1.5 ml-auto">
+                <Plus className="w-3.5 h-3.5" /> Add Asset
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setAddDialogOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" /> Add Asset Manually
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setImportDialogOpen(true)}>
+                <FileSpreadsheet className="w-4 h-4 mr-2" /> Import from Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <span className="text-xs text-muted-foreground">{filtered.length} assets</span>
         </div>
 
@@ -111,6 +137,43 @@ export default function AssetsPage() {
       </div>
 
       <AddAssetDialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)} onSubmit={() => setAddDialogOpen(false)} />
+
+      {/* Import from Excel Dialog */}
+      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import Assets from Excel</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              Upload an Excel file (.xlsx) with columns: Name, Type, Building, Floor, Status.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="excel-file">Excel File</Label>
+              <Input
+                id="excel-file"
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                className="text-xs"
+              />
+            </div>
+            {importFile && (
+              <p className="text-xs text-muted-foreground">
+                Selected: <span className="font-medium text-foreground">{importFile.name}</span>
+              </p>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => { setImportDialogOpen(false); setImportFile(null); }}>
+                Cancel
+              </Button>
+              <Button size="sm" onClick={handleImport} disabled={!importFile}>
+                <FileSpreadsheet className="w-4 h-4 mr-1.5" /> Import
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
