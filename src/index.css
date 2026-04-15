@@ -6,46 +6,46 @@
 
 @layer base {
   :root {
-    --background: 220 14% 96%;
-    --foreground: 224 28% 12%;
+    --background: 0 0% 96%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 224 28% 12%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 224 28% 12%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 230 80% 56%;
+    --primary: 0 72% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 224 28% 12%;
+    --secondary: 0 10% 92%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 220 14% 94%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 0 5% 94%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 230 80% 56%;
+    --accent: 0 72% 45%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 14% 89%;
-    --input: 220 14% 89%;
-    --ring: 230 80% 56%;
+    --border: 0 5% 88%;
+    --input: 0 5% 88%;
+    --ring: 0 72% 45%;
 
     --radius: 0.625rem;
 
-    /* Sidebar - soft pastel lavender */
-    --sidebar-background: 240 40% 96%;
-    --sidebar-foreground: 240 20% 30%;
-    --sidebar-primary: 240 60% 60%;
+    /* Sidebar - light warm gray with red accent */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 25%;
+    --sidebar-primary: 0 72% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 30% 90%;
-    --sidebar-accent-foreground: 240 20% 15%;
-    --sidebar-border: 240 25% 88%;
-    --sidebar-ring: 240 60% 60%;
-    --sidebar-muted: 240 15% 50%;
+    --sidebar-accent: 0 15% 93%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 5% 90%;
+    --sidebar-ring: 0 72% 45%;
+    --sidebar-muted: 0 0% 50%;
 
     /* Status colors */
     --status-working: 152 60% 42%;
@@ -53,12 +53,12 @@
     --status-maintenance: 38 92% 50%;
 
     /* Canvas */
-    --canvas-bg: 220 14% 94%;
-    --canvas-grid: 220 14% 88%;
+    --canvas-bg: 0 0% 94%;
+    --canvas-grid: 0 0% 88%;
 
     /* Topbar */
     --topbar-bg: 0 0% 100%;
-    --topbar-border: 220 14% 89%;
+    --topbar-border: 0 5% 88%;
   }
 }
 
