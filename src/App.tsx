@@ -8,6 +8,7 @@ import BuildingPage from "./pages/BuildingPage";
 import BuildingsPage from "./pages/BuildingsPage";
 import FloorLayoutPage from "./pages/FloorLayoutPage";
 import AssetsPage from "./pages/AssetsPage";
+import ReportsPage from "./pages/ReportsPage";
 import UsersPage from "./pages/UsersPage";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/building/:buildingId" element={<BuildingPage />} />
           <Route path="/building/:buildingId/floor/:floorId" element={<FloorLayoutPage />} />
           <Route path="/assets" element={<AssetsPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
