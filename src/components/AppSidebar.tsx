@@ -19,6 +19,7 @@ export function AppSidebar() {
       {/* Logo */}
       <div className="h-14 flex items-center gap-2.5 px-5 border-b border-sidebar-border">
         <img src={ntgLogo} alt="NTG Clarity Networks" className="h-8 w-auto" />
+        <span className="text-sm font-semibold text-foreground">NTG Clarity Networks</span>
       </div>
 
       {/* Nav */}
@@ -41,7 +42,7 @@ export function AppSidebar() {
       </nav>
 
       {/* User */}
-      <div className="p-3 border-t border-sidebar-border">
+      <div className="sticky bottom-0 p-3 border-t border-sidebar-border bg-sidebar">
         <div className="flex items-center gap-2.5 px-3 py-2">
           <div className="w-7 h-7 rounded-full bg-sidebar-primary flex items-center justify-center text-[11px] font-semibold text-sidebar-primary-foreground">
             JS
