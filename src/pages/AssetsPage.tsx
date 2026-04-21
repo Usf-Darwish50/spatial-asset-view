@@ -203,6 +203,37 @@ export default function AssetsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* QR Code Dialog */}
+      <Dialog open={!!qrAsset} onOpenChange={(o) => !o && setQrAsset(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{qrAsset?.name} — QR Code</DialogTitle>
+          </DialogHeader>
+          {qrAsset && (
+            <div className="flex flex-col items-center gap-4 py-2">
+              <div className="bg-white p-4 rounded-lg border border-border">
+                <QRCodeSVG
+                  value={JSON.stringify({ id: qrAsset.id, name: qrAsset.name, type: qrAsset.type })}
+                  size={220}
+                  level="M"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">Asset ID: <span className="font-mono text-foreground">{qrAsset.id}</span></p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const svg = document.querySelector(".qr-print svg") as SVGElement | null;
+                  window.print();
+                }}
+              >
+                Print
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
