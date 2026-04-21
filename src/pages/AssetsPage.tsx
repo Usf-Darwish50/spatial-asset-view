@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Plus, FileSpreadsheet } from "lucide-react";
+import { Plus, FileSpreadsheet, Download, QrCode } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { StatusBadge } from "@/components/StatusBadge";
-import { assets, buildings, floors, AssetStatus, assetTypes } from "@/data/mock";
+import { assets, buildings, floors, AssetStatus, assetTypes, Asset } from "@/data/mock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { AddAssetDialog } from "@/components/AddAssetDialog";
@@ -20,6 +21,7 @@ export default function AssetsPage() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
+  const [qrAsset, setQrAsset] = useState<Asset | null>(null);
 
   const availableFloors = buildingFilter !== "all"
     ? floors.filter((f) => f.buildingId === buildingFilter)
@@ -42,6 +44,20 @@ export default function AssetsPage() {
     toast({ title: "Import Started", description: `Importing assets from ${importFile.name}...` });
     setImportDialogOpen(false);
     setImportFile(null);
+  };
+
+  const handleDownloadTemplate = () => {
+    const headers = ["Name", "Type", "Building", "Floor", "Status", "Description"];
+    const example = ["Sample Asset", "HVAC", "Headquarters", "Ground Floor", "working", "Example description"];
+    const csv = [headers.join(","), example.map((v) => `"${v}"`).join(",")].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "assets-template.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Template Downloaded", description: "Fill it in and import back." });
   };
 
   return (
@@ -98,6 +114,9 @@ export default function AssetsPage() {
               <DropdownMenuItem onClick={() => setImportDialogOpen(true)}>
                 <FileSpreadsheet className="w-4 h-4 mr-2" /> Import from Excel
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDownloadTemplate}>
+                <Download className="w-4 h-4 mr-2" /> Download Excel Template
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <span className="text-xs text-muted-foreground">{filtered.length} assets</span>
@@ -108,7 +127,7 @@ export default function AssetsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                {["Asset", "Type", "Building", "Floor", "Status", "Last Updated", "Updated By"].map((h) => (
+                {["Asset", "Type", "Building", "Floor", "Status", "Last Updated", "Updated By", "QR Code"].map((h) => (
                   <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
@@ -128,6 +147,16 @@ export default function AssetsPage() {
                       {new Date(asset.lastUpdated).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </td>
                     <td className="px-4 py-3 text-[12px] text-muted-foreground">{asset.updatedBy}</td>
+                    <td className="px-4 py-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 gap-1.5 text-xs"
+                        onClick={() => setQrAsset(asset)}
+                      >
+                        <QrCode className="w-3.5 h-3.5" /> View
+                      </Button>
+                    </td>
                   </tr>
                 );
               })}
@@ -172,6 +201,37 @@ export default function AssetsPage() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* QR Code Dialog */}
+      <Dialog open={!!qrAsset} onOpenChange={(o) => !o && setQrAsset(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{qrAsset?.name} — QR Code</DialogTitle>
+          </DialogHeader>
+          {qrAsset && (
+            <div className="flex flex-col items-center gap-4 py-2">
+              <div className="bg-white p-4 rounded-lg border border-border">
+                <QRCodeSVG
+                  value={JSON.stringify({ id: qrAsset.id, name: qrAsset.name, type: qrAsset.type })}
+                  size={220}
+                  level="M"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">Asset ID: <span className="font-mono text-foreground">{qrAsset.id}</span></p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const svg = document.querySelector(".qr-print svg") as SVGElement | null;
+                  window.print();
+                }}
+              >
+                Print
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </AppLayout>
