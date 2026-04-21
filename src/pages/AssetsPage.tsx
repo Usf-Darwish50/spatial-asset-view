@@ -147,6 +147,16 @@ export default function AssetsPage() {
                       {new Date(asset.lastUpdated).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </td>
                     <td className="px-4 py-3 text-[12px] text-muted-foreground">{asset.updatedBy}</td>
+                    <td className="px-4 py-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 gap-1.5 text-xs"
+                        onClick={() => setQrAsset(asset)}
+                      >
+                        <QrCode className="w-3.5 h-3.5" /> View
+                      </Button>
+                    </td>
                   </tr>
                 );
               })}
