@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Plus, FileSpreadsheet } from "lucide-react";
+import { Plus, FileSpreadsheet, Download, QrCode } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { StatusBadge } from "@/components/StatusBadge";
-import { assets, buildings, floors, AssetStatus, assetTypes } from "@/data/mock";
+import { assets, buildings, floors, AssetStatus, assetTypes, Asset } from "@/data/mock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { AddAssetDialog } from "@/components/AddAssetDialog";
