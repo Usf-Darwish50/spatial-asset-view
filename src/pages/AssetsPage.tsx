@@ -46,6 +46,20 @@ export default function AssetsPage() {
     setImportFile(null);
   };
 
+  const handleDownloadTemplate = () => {
+    const headers = ["Name", "Type", "Building", "Floor", "Status", "Description"];
+    const example = ["Sample Asset", "HVAC", "Headquarters", "Ground Floor", "working", "Example description"];
+    const csv = [headers.join(","), example.map((v) => `"${v}"`).join(",")].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "assets-template.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Template Downloaded", description: "Fill it in and import back." });
+  };
+
   return (
     <AppLayout>
       <TopBar title="Assets" subtitle="All assets across buildings" />
