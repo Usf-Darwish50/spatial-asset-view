@@ -47,6 +47,31 @@ export default function ReportsPage() {
             </SelectContent>
           </Select>
           <span className="text-xs text-muted-foreground ml-auto">{filtered.length} assets</span>
+          <Button
+            size="sm"
+            className="h-8 text-xs gap-1.5"
+            onClick={() => {
+              const headers = ["Asset", "Type", "Building", "Floor", "Status", "Last Updated", "Updated By"];
+              const rows = filtered.map((a) => {
+                const b = buildings.find((x) => x.id === a.buildingId)?.name ?? "";
+                const f = floors.find((x) => x.id === a.floorId)?.name ?? "";
+                return [a.name, a.type, b, f, a.status, a.lastUpdated, a.updatedBy]
+                  .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+                  .join(",");
+              });
+              const csv = [headers.join(","), ...rows].join("\n");
+              const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `report-${new Date().toISOString().slice(0, 10)}.csv`;
+              link.click();
+              URL.revokeObjectURL(url);
+              toast({ title: "Report Exported", description: `${filtered.length} assets exported.` });
+            }}
+          >
+            <Download className="w-3.5 h-3.5" /> Export Report
+          </Button>
         </div>
 
         {/* Table */}
