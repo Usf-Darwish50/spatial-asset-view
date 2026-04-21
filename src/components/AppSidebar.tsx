@@ -1,4 +1,4 @@
-import { Building2, LayoutDashboard, Box, Users, FileText } from "lucide-react";
+import { Building2, LayoutDashboard, Box, Users, FileText, LogOut } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import ntgLogo from "@/assets/ntg-logo.jpeg";
@@ -52,6 +52,17 @@ export function AppSidebar() {
             <p className="text-[12px] font-medium text-sidebar-accent-foreground truncate">John Smith</p>
             <p className="text-[11px] text-sidebar-muted truncate">Admin</p>
           </div>
+          <button
+            onClick={() => {
+              sessionStorage.removeItem("isAuthenticated");
+              navigate("/login", { replace: true });
+            }}
+            aria-label="Logout"
+            title="Logout"
+            className="p-1.5 rounded-md text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </aside>
