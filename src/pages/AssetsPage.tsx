@@ -114,6 +114,9 @@ export default function AssetsPage() {
               <DropdownMenuItem onClick={() => setImportDialogOpen(true)}>
                 <FileSpreadsheet className="w-4 h-4 mr-2" /> Import from Excel
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDownloadTemplate}>
+                <Download className="w-4 h-4 mr-2" /> Download Excel Template
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <span className="text-xs text-muted-foreground">{filtered.length} assets</span>
