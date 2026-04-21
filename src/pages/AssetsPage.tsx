@@ -127,7 +127,7 @@ export default function AssetsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                {["Asset", "Type", "Building", "Floor", "Status", "Last Updated", "Updated By"].map((h) => (
+                {["Asset", "Type", "Building", "Floor", "Status", "Last Updated", "Updated By", "QR Code"].map((h) => (
                   <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
