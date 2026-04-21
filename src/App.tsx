@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { RequireAuth } from "@/components/RequireAuth";
 import DashboardPage from "./pages/DashboardPage";
 import BuildingPage from "./pages/BuildingPage";
 import BuildingsPage from "./pages/BuildingsPage";
@@ -10,6 +11,7 @@ import FloorLayoutPage from "./pages/FloorLayoutPage";
 import AssetsPage from "./pages/AssetsPage";
 import ReportsPage from "./pages/ReportsPage";
 import UsersPage from "./pages/UsersPage";
+import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,13 +23,14 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/buildings" element={<BuildingsPage />} />
-          <Route path="/building/:buildingId" element={<BuildingPage />} />
-          <Route path="/building/:buildingId/floor/:floorId" element={<FloorLayoutPage />} />
-          <Route path="/assets" element={<AssetsPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/users" element={<UsersPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<RequireAuth><DashboardPage /></RequireAuth>} />
+          <Route path="/buildings" element={<RequireAuth><BuildingsPage /></RequireAuth>} />
+          <Route path="/building/:buildingId" element={<RequireAuth><BuildingPage /></RequireAuth>} />
+          <Route path="/building/:buildingId/floor/:floorId" element={<RequireAuth><FloorLayoutPage /></RequireAuth>} />
+          <Route path="/assets" element={<RequireAuth><AssetsPage /></RequireAuth>} />
+          <Route path="/reports" element={<RequireAuth><ReportsPage /></RequireAuth>} />
+          <Route path="/users" element={<RequireAuth><UsersPage /></RequireAuth>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
