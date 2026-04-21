@@ -21,6 +21,7 @@ export default function AssetsPage() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
+  const [qrAsset, setQrAsset] = useState<Asset | null>(null);
 
   const availableFloors = buildingFilter !== "all"
     ? floors.filter((f) => f.buildingId === buildingFilter)
