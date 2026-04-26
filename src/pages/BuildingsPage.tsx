@@ -7,6 +7,7 @@ import { buildings as initialBuildings, floors, assets } from "@/data/mock";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
 
 export default function BuildingsPage() {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ export default function BuildingsPage() {
       assetsCount: 0,
     };
     setBuildingsList([...buildingsList, newBuilding]);
+    toast({ title: "Building added", description: `${newBuilding.name} has been created.` });
     setName("");
     setAddress("");
     setFloorsCount("");

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { assetTypes, AssetShape } from "@/data/mock";
+import { toast } from "@/hooks/use-toast";
 
 interface AddAssetDialogProps {
   open: boolean;
@@ -23,6 +24,7 @@ export function AddAssetDialog({ open, onClose, onSubmit }: AddAssetDialogProps)
   const handleSubmit = () => {
     if (!name || !type) return;
     onSubmit({ name, type, description, shape, image });
+    toast({ title: "Asset added", description: `${name} has been created.` });
     setName("");
     setType("");
     setDescription("");

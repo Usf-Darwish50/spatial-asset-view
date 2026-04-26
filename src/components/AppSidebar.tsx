@@ -2,6 +2,7 @@ import { Building2, LayoutDashboard, Box, Users, FileText, LogOut } from "lucide
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import ntgLogo from "@/assets/ntg-logo.jpeg";
+import { toast } from "@/hooks/use-toast";
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -55,6 +56,7 @@ export function AppSidebar() {
           <button
             onClick={() => {
               sessionStorage.removeItem("isAuthenticated");
+              toast({ title: "Logged out", description: "You have been signed out." });
               navigate("/login", { replace: true });
             }}
             aria-label="Logout"
