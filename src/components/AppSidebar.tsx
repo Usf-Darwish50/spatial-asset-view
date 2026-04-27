@@ -1,4 +1,4 @@
-import { Building2, LayoutDashboard, Box, Users, FileText, LogOut } from "lucide-react";
+import { Building2, LayoutDashboard, Box, Users, FileText, LogOut, Boxes } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import ntgLogo from "@/assets/ntg-logo.jpeg";
@@ -12,6 +12,7 @@ export function AppSidebar() {
     { label: "Dashboard", icon: LayoutDashboard, path: "/" },
     { label: "Buildings", icon: Building2, path: "/buildings" },
     { label: "Assets", icon: Box, path: "/assets" },
+    { label: "Asset Types", icon: Boxes, path: "/asset-types" },
     { label: "Reports", icon: FileText, path: "/reports" },
     { label: "Users", icon: Users, path: "/users" },
   ];
