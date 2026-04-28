@@ -82,7 +82,7 @@ export default function AddAssetPage() {
         }
       />
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-2xl mx-auto bg-card rounded-xl border border-border shadow-sm p-6 space-y-5">
+        <div className="space-y-5">
           {/* Building + Floor */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
