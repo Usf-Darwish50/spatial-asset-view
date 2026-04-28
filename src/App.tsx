@@ -9,6 +9,7 @@ import BuildingPage from "./pages/BuildingPage";
 import BuildingsPage from "./pages/BuildingsPage";
 import FloorLayoutPage from "./pages/FloorLayoutPage";
 import AssetsPage from "./pages/AssetsPage";
+import AddAssetPage from "./pages/AddAssetPage";
 import AssetTypesPage from "./pages/AssetTypesPage";
 import AssetTypeDetailPage from "./pages/AssetTypeDetailPage";
 import ReportsPage from "./pages/ReportsPage";
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/building/:buildingId" element={<RequireAuth><BuildingPage /></RequireAuth>} />
           <Route path="/building/:buildingId/floor/:floorId" element={<RequireAuth><FloorLayoutPage /></RequireAuth>} />
           <Route path="/assets" element={<RequireAuth><AssetsPage /></RequireAuth>} />
+          <Route path="/assets/new" element={<RequireAuth><AddAssetPage /></RequireAuth>} />
           <Route path="/asset-types" element={<RequireAuth><AssetTypesPage /></RequireAuth>} />
           <Route path="/asset-types/:typeName" element={<RequireAuth><AssetTypeDetailPage /></RequireAuth>} />
           <Route path="/reports" element={<RequireAuth><ReportsPage /></RequireAuth>} />
