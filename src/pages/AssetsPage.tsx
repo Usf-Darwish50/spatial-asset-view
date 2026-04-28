@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, FileSpreadsheet, Download, QrCode } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { AppLayout } from "@/components/AppLayout";
@@ -15,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 
 export default function AssetsPage() {
+  const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [buildingFilter, setBuildingFilter] = useState<string>("all");
   const [floorFilter, setFloorFilter] = useState<string>("all");
@@ -108,7 +110,7 @@ export default function AssetsPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setAddDialogOpen(true)}>
+              <DropdownMenuItem onClick={() => navigate("/assets/new")}>
                 <Plus className="w-4 h-4 mr-2" /> Add Asset Manually
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setImportDialogOpen(true)}>
