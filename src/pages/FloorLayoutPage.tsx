@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 
 export default function FloorLayoutPage() {
   const { buildingId, floorId } = useParams();
+  const navigate = useNavigate();
   const building = buildings.find((b) => b.id === buildingId);
   const floor = floors.find((f) => f.id === floorId);
   const [assetList, setAssetList] = useState<Asset[]>(initialAssets);
@@ -82,7 +83,7 @@ export default function FloorLayoutPage() {
         title={`${building.name} — ${floor.name}`}
         subtitle={`Level ${floor.level} · ${floorAssets.length} assets`}
         actions={
-          <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => setShowAddDialog(true)} disabled={placingMode}>
+          <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => navigate(`/assets/new?building=${buildingId}&floor=${floorId}`)} disabled={placingMode}>
             <Plus className="w-3.5 h-3.5" />Add Asset
           </Button>
         }
