@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Crosshair } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { LayoutCanvas } from "@/components/LayoutCanvas";
 import { AssetDetailPanel } from "@/components/AssetDetailPanel";
-import { AddAssetDialog } from "@/components/AddAssetDialog";
-import { buildings, floors, assets as initialAssets, Asset, AssetStatus, AssetShape } from "@/data/mock";
+import { FloorAssetsTable } from "@/components/FloorAssetsTable";
+import { UpdateStatusDialog } from "@/components/UpdateStatusDialog";
+import { buildings, floors, assets as initialAssets, Asset, AssetStatus } from "@/data/mock";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 
 export default function FloorLayoutPage() {
   const { buildingId, floorId } = useParams();
@@ -17,8 +19,8 @@ export default function FloorLayoutPage() {
   const [assetList, setAssetList] = useState<Asset[]>(initialAssets);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [placingMode, setPlacingMode] = useState(false);
-  const [pendingAsset, setPendingAsset] = useState<{ name: string; type: string; description: string; shape: AssetShape; image: string } | null>(null);
-  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [placingAssetId, setPlacingAssetId] = useState<string | null>(null);
+  const [statusDialogAsset, setStatusDialogAsset] = useState<Asset | null>(null);
 
   const floorAssets = assetList.filter((a) => a.floorId === floorId);
 
@@ -26,7 +28,7 @@ export default function FloorLayoutPage() {
 
   const handleAssetMove = (assetId: string, x: number, y: number) => {
     setAssetList((prev) => prev.map((a) => (a.id === assetId ? { ...a, x, y } : a)));
-    if (selectedAsset?.id === assetId) setSelectedAsset((prev) => prev ? { ...prev, x, y } : null);
+    if (selectedAsset?.id === assetId) setSelectedAsset((prev) => (prev ? { ...prev, x, y } : null));
   };
 
   const handleStatusChange = (assetId: string, status: AssetStatus, comment: string) => {
@@ -34,47 +36,61 @@ export default function FloorLayoutPage() {
       prev.map((a) =>
         a.id === assetId
           ? {
-              ...a, status, lastUpdated: new Date().toISOString(), updatedBy: "John Smith",
-              comments: [{ id: `c-${Date.now()}`, text: comment || `Status changed to ${status}`, author: "John Smith", timestamp: new Date().toISOString(), statusChange: { from: a.status, to: status } }, ...a.comments],
+              ...a,
+              status,
+              lastUpdated: new Date().toISOString(),
+              updatedBy: "John Smith",
+              comments: [
+                {
+                  id: `c-${Date.now()}`,
+                  text: comment || `Status changed to ${status}`,
+                  author: "John Smith",
+                  timestamp: new Date().toISOString(),
+                  statusChange: { from: a.status, to: status },
+                },
+                ...a.comments,
+              ],
             }
           : a
       )
     );
-    const updated = assetList.find((a) => a.id === assetId);
-    if (updated && selectedAsset?.id === assetId) setSelectedAsset({ ...updated, status, lastUpdated: new Date().toISOString() });
+    if (selectedAsset?.id === assetId) {
+      setSelectedAsset((prev) => (prev ? { ...prev, status, lastUpdated: new Date().toISOString() } : null));
+    }
+    toast({ title: "Status updated", description: `Asset status set to ${status}.` });
   };
 
-  const handleAddAssetSubmit = (data: { name: string; type: string; description: string; shape: AssetShape; image: string }) => {
-    setPendingAsset(data);
-    setShowAddDialog(false);
+  const handleAddToMap = (asset: Asset) => {
+    setPlacingAssetId(asset.id);
     setPlacingMode(true);
+    setSelectedAsset(null);
+    toast({ title: "Placement mode", description: `Click on the map to place ${asset.name}.` });
   };
 
   const handlePlaceAsset = (x: number, y: number) => {
-    if (!pendingAsset || !buildingId || !floorId) return;
-    const newAsset: Asset = {
-      id: `a-${Date.now()}`,
-      name: pendingAsset.name,
-      type: pendingAsset.type,
-      status: "working",
-      shape: pendingAsset.shape,
-      image: pendingAsset.image,
-      description: pendingAsset.description,
-      buildingId,
-      floorId,
-      x, y,
-      lastUpdated: new Date().toISOString(),
-      updatedBy: "John Smith",
-      comments: [],
-    };
-    setAssetList((prev) => [...prev, newAsset]);
+    if (!placingAssetId) return;
+    setAssetList((prev) => prev.map((a) => (a.id === placingAssetId ? { ...a, x, y } : a)));
+    const placed = assetList.find((a) => a.id === placingAssetId);
     setPlacingMode(false);
-    setPendingAsset(null);
-    setSelectedAsset(newAsset);
+    setPlacingAssetId(null);
+    if (placed) {
+      setSelectedAsset({ ...placed, x, y });
+      toast({ title: "Asset placed", description: `${placed.name} added to the map.` });
+    }
+  };
+
+  const cancelPlacing = () => {
+    setPlacingMode(false);
+    setPlacingAssetId(null);
   };
 
   if (!building || !floor) {
-    return <AppLayout><TopBar title="Not Found" /><div className="p-6 text-muted-foreground">Floor not found.</div></AppLayout>;
+    return (
+      <AppLayout>
+        <TopBar title="Not Found" />
+        <div className="p-6 text-muted-foreground">Floor not found.</div>
+      </AppLayout>
+    );
   }
 
   return (
@@ -83,9 +99,21 @@ export default function FloorLayoutPage() {
         title={`${building.name} — ${floor.name}`}
         subtitle={`Level ${floor.level} · ${floorAssets.length} assets`}
         actions={
-          <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => navigate(`/assets/new?building=${buildingId}&floor=${floorId}`)} disabled={placingMode}>
-            <Plus className="w-3.5 h-3.5" />Add Asset
-          </Button>
+          placingMode ? (
+            <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={cancelPlacing}>
+              <Crosshair className="w-3.5 h-3.5" />
+              Cancel placement
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              className="h-8 text-xs gap-1.5"
+              onClick={() => navigate(`/assets/new?building=${buildingId}&floor=${floorId}`)}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Asset
+            </Button>
+          )
         }
       />
       <div className="flex-1 flex overflow-hidden">
@@ -97,11 +125,27 @@ export default function FloorLayoutPage() {
           placingMode={placingMode}
           onPlaceAsset={handlePlaceAsset}
         />
+        <FloorAssetsTable
+          assets={floorAssets}
+          selectedAssetId={selectedAsset?.id}
+          onRowClick={handleAssetClick}
+          onUpdateStatus={(a) => setStatusDialogAsset(a)}
+          onAddToMap={handleAddToMap}
+        />
         {selectedAsset && (
-          <AssetDetailPanel asset={selectedAsset} onClose={() => setSelectedAsset(null)} onStatusChange={handleStatusChange} />
+          <AssetDetailPanel
+            asset={selectedAsset}
+            onClose={() => setSelectedAsset(null)}
+            onStatusChange={handleStatusChange}
+          />
         )}
       </div>
-      <AddAssetDialog open={showAddDialog} onClose={() => setShowAddDialog(false)} onSubmit={handleAddAssetSubmit} />
+      <UpdateStatusDialog
+        asset={statusDialogAsset}
+        open={!!statusDialogAsset}
+        onClose={() => setStatusDialogAsset(null)}
+        onSubmit={handleStatusChange}
+      />
     </AppLayout>
   );
 }
