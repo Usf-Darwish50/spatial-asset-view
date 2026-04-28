@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { assets, buildings, floors, AssetStatus, assetTypes, Asset } from "@/data/mock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { AddAssetDialog } from "@/components/AddAssetDialog";
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ export default function AssetsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [buildingFilter, setBuildingFilter] = useState<string>("all");
   const [floorFilter, setFloorFilter] = useState<string>("all");
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [qrAsset, setQrAsset] = useState<Asset | null>(null);
@@ -167,7 +167,7 @@ export default function AssetsPage() {
         </div>
       </div>
 
-      <AddAssetDialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)} onSubmit={() => setAddDialogOpen(false)} />
+
 
       {/* Import from Excel Dialog */}
       <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
