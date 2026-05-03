@@ -91,6 +91,8 @@ export const assets: Asset[] = [
   { id: "a10", name: "Pipe Duct F1", type: "Pipe Box", status: "working", shape: "rectangle", image: "/placeholder.svg", description: "Floor 1 main pipe duct", buildingId: "b1", floorId: "f2", x: 450, y: 100, lastUpdated: "2025-03-26T14:00:00Z", updatedBy: "Jane Doe", comments: [] },
   { id: "a11", name: "Server Rack DC-01", type: "IT Equipment", status: "working", shape: "circle", image: "/placeholder.svg", description: "Primary compute rack row A", buildingId: "b3", floorId: "f9", x: 200, y: 150, lastUpdated: "2025-03-28T12:00:00Z", updatedBy: "Mike Johnson", comments: [] },
   { id: "a12", name: "Cooling Unit DC-C1", type: "HVAC", status: "maintenance", shape: "circle", image: "/placeholder.svg", description: "Data center cooling unit C1", buildingId: "b3", floorId: "f9", x: 500, y: 300, lastUpdated: "2025-03-29T10:00:00Z", updatedBy: "John Smith", comments: [{ id: "c5", text: "Coolant replacement in progress", author: "John Smith", timestamp: "2025-03-29T10:00:00Z", statusChange: { from: "working", to: "maintenance" } }] },
+  { id: "a13", name: "Office Chair OC-22", type: "Furniture", status: "working", shape: "rectangle", image: "/placeholder.svg", description: "Unassigned ergonomic office chair", lastUpdated: "2025-04-02T09:00:00Z", updatedBy: "Jane Doe", comments: [] },
+  { id: "a14", name: "Projector P-07", type: "IT Equipment", status: "working", shape: "rectangle", image: "/placeholder.svg", description: "Unassigned conference projector", lastUpdated: "2025-04-01T13:00:00Z", updatedBy: "Mike Johnson", comments: [] },
 ];
 
 export const users: User[] = [
