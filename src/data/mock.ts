@@ -26,8 +26,8 @@ export interface Asset {
   type: string;
   status: AssetStatus;
   description: string;
-  buildingId: string;
-  floorId: string;
+  buildingId?: string;
+  floorId?: string;
   x?: number;
   y?: number;
   shape: AssetShape;
