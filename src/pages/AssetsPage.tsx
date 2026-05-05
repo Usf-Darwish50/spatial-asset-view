@@ -266,6 +266,52 @@ export default function AssetsPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Assign Building/Floor Dialog */}
+      <Dialog open={!!assignAsset} onOpenChange={(o) => !o && setAssignAsset(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Assign {assignAsset?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Building</Label>
+              <Select
+                value={assignBuilding}
+                onValueChange={(v) => { setAssignBuilding(v); setAssignFloor(""); }}
+              >
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Select building" />
+                </SelectTrigger>
+                <SelectContent>
+                  {buildings.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Floor</Label>
+              <Select value={assignFloor} onValueChange={setAssignFloor} disabled={!assignBuilding}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder={assignBuilding ? "Select floor" : "Select building first"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {assignAvailableFloors.map((f) => (
+                    <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="outline" size="sm" onClick={() => setAssignAsset(null)}>Cancel</Button>
+              <Button size="sm" onClick={handleAssignSave} disabled={!assignBuilding || !assignFloor}>
+                Assign
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
