@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, FileSpreadsheet, Download, QrCode } from "lucide-react";
+import { Plus, FileSpreadsheet, Download, QrCode, MapPin } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
@@ -24,6 +24,27 @@ export default function AssetsPage() {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [qrAsset, setQrAsset] = useState<Asset | null>(null);
+  const [assignAsset, setAssignAsset] = useState<Asset | null>(null);
+  const [assignBuilding, setAssignBuilding] = useState<string>("");
+  const [assignFloor, setAssignFloor] = useState<string>("");
+
+  const openAssign = (asset: Asset) => {
+    setAssignAsset(asset);
+    setAssignBuilding(asset.buildingId || "");
+    setAssignFloor(asset.floorId || "");
+  };
+
+  const assignAvailableFloors = assignBuilding
+    ? floors.filter((f) => f.buildingId === assignBuilding)
+    : [];
+
+  const handleAssignSave = () => {
+    if (!assignAsset || !assignBuilding || !assignFloor) return;
+    const b = buildings.find((x) => x.id === assignBuilding);
+    const f = floors.find((x) => x.id === assignFloor);
+    toast({ title: "Asset Assigned", description: `${assignAsset.name} → ${b?.name} / ${f?.name}` });
+    setAssignAsset(null);
+  };
 
   const availableFloors = buildingFilter !== "all"
     ? floors.filter((f) => f.buildingId === buildingFilter)
@@ -129,7 +150,7 @@ export default function AssetsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                {["Asset", "Type", "Building", "Floor", "Status", "Last Updated", "Updated By", "QR Code"].map((h) => (
+                {["Asset", "Type", "Building", "Floor", "Status", "Last Updated", "Updated By", "QR Code", "Actions"].map((h) => (
                   <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
@@ -142,8 +163,8 @@ export default function AssetsPage() {
                   <tr key={asset.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-3 text-[13px] font-medium text-card-foreground">{asset.name}</td>
                     <td className="px-4 py-3 text-[12px] text-muted-foreground">{asset.type}</td>
-                    <td className="px-4 py-3 text-[12px] text-muted-foreground">{building?.name}</td>
-                    <td className="px-4 py-3 text-[12px] text-muted-foreground">{floor?.name}</td>
+                    <td className="px-4 py-3 text-[12px] text-muted-foreground">{building?.name || <span className="italic text-muted-foreground/60">Unassigned</span>}</td>
+                    <td className="px-4 py-3 text-[12px] text-muted-foreground">{floor?.name || <span className="italic text-muted-foreground/60">—</span>}</td>
                     <td className="px-4 py-3"><StatusBadge status={asset.status} size="sm" /></td>
                     <td className="px-4 py-3 text-[12px] text-muted-foreground">
                       {new Date(asset.lastUpdated).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
@@ -158,6 +179,15 @@ export default function AssetsPage() {
                       >
                         <QrCode className="w-3.5 h-3.5" /> View
                       </Button>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        title="Assign to building & floor"
+                        onClick={() => openAssign(asset)}
+                        className="p-1.5 rounded-md hover:bg-secondary transition-colors text-primary"
+                      >
+                        <MapPin className="w-3.5 h-3.5" />
+                      </button>
                     </td>
                   </tr>
                 );
