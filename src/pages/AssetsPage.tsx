@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, FileSpreadsheet, Download, QrCode, MapPin } from "lucide-react";
+import { Plus, FileSpreadsheet, Download, QrCode } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { StatusBadge } from "@/components/StatusBadge";
-import { assets as initialAssets, buildings, floors, AssetStatus, assetTypes, Asset } from "@/data/mock";
+import { assets, buildings, floors, AssetStatus, assetTypes, Asset } from "@/data/mock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -18,26 +17,19 @@ import { toast } from "@/hooks/use-toast";
 
 export default function AssetsPage() {
   const navigate = useNavigate();
-  const [assetList, setAssetList] = useState<Asset[]>(initialAssets);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [buildingFilter, setBuildingFilter] = useState<string>("all");
   const [floorFilter, setFloorFilter] = useState<string>("all");
-
+  
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [qrAsset, setQrAsset] = useState<Asset | null>(null);
-
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [assignOpen, setAssignOpen] = useState(false);
-  const [assignTargets, setAssignTargets] = useState<string[]>([]);
-  const [assignBuilding, setAssignBuilding] = useState<string>("");
-  const [assignFloor, setAssignFloor] = useState<string>("");
 
   const availableFloors = buildingFilter !== "all"
     ? floors.filter((f) => f.buildingId === buildingFilter)
     : [];
 
-  const filtered = assetList.filter((a) => {
+  const filtered = assets.filter((a) => {
     if (statusFilter !== "all" && a.status !== statusFilter) return false;
     if (buildingFilter !== "all" && a.buildingId !== buildingFilter) return false;
     if (floorFilter !== "all" && a.floorId !== floorFilter) return false;
@@ -68,49 +60,6 @@ export default function AssetsPage() {
     link.click();
     URL.revokeObjectURL(url);
     toast({ title: "Template Downloaded", description: "Fill it in and import back." });
-  };
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((s) => s.includes(id) ? s.filter((x) => x !== id) : [...s, id]);
-  };
-  const toggleSelectAll = () => {
-    if (selectedIds.length === filtered.length) setSelectedIds([]);
-    else setSelectedIds(filtered.map((a) => a.id));
-  };
-
-  const openAssignSingle = (id: string) => {
-    const a = assetList.find((x) => x.id === id);
-    setAssignTargets([id]);
-    setAssignBuilding(a?.buildingId || "");
-    setAssignFloor(a?.floorId || "");
-    setAssignOpen(true);
-  };
-  const openAssignBulk = () => {
-    if (selectedIds.length === 0) {
-      toast({ title: "No assets selected", description: "Select assets to assign.", variant: "destructive" });
-      return;
-    }
-    setAssignTargets(selectedIds);
-    setAssignBuilding("");
-    setAssignFloor("");
-    setAssignOpen(true);
-  };
-  const assignFloorOptions = assignBuilding ? floors.filter((f) => f.buildingId === assignBuilding) : [];
-
-  const handleAssign = () => {
-    if (!assignBuilding || !assignFloor) {
-      toast({ title: "Missing fields", description: "Pick a building and floor.", variant: "destructive" });
-      return;
-    }
-    setAssetList((prev) => prev.map((a) =>
-      assignTargets.includes(a.id) ? { ...a, buildingId: assignBuilding, floorId: assignFloor } : a
-    ));
-    toast({
-      title: "Assets assigned",
-      description: `${assignTargets.length} asset(s) assigned to ${buildings.find((b) => b.id === assignBuilding)?.name} / ${floors.find((f) => f.id === assignFloor)?.name}.`,
-    });
-    setAssignOpen(false);
-    setSelectedIds([]);
   };
 
   return (
@@ -154,18 +103,9 @@ export default function AssetsPage() {
               </SelectContent>
             </Select>
           )}
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-8 text-xs gap-1.5 ml-auto"
-            onClick={openAssignBulk}
-            disabled={selectedIds.length === 0}
-          >
-            <MapPin className="w-3.5 h-3.5" /> Assign{selectedIds.length > 0 ? ` (${selectedIds.length})` : ""}
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" className="h-8 text-xs gap-1.5">
+              <Button size="sm" className="h-8 text-xs gap-1.5 ml-auto">
                 <Plus className="w-3.5 h-3.5" /> Add Asset
               </Button>
             </DropdownMenuTrigger>
@@ -189,13 +129,7 @@ export default function AssetsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                <th className="px-4 py-2.5 w-10">
-                  <Checkbox
-                    checked={filtered.length > 0 && selectedIds.length === filtered.length}
-                    onCheckedChange={toggleSelectAll}
-                  />
-                </th>
-                {["Asset", "Type", "Building", "Floor", "Status", "Last Updated", "Updated By", "QR Code", "Actions"].map((h) => (
+                {["Asset", "Type", "Building", "Floor", "Status", "Last Updated", "Updated By", "QR Code"].map((h) => (
                   <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
@@ -204,20 +138,12 @@ export default function AssetsPage() {
               {filtered.map((asset) => {
                 const building = buildings.find((b) => b.id === asset.buildingId);
                 const floor = floors.find((f) => f.id === asset.floorId);
-                const checked = selectedIds.includes(asset.id);
                 return (
                   <tr key={asset.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3">
-                      <Checkbox checked={checked} onCheckedChange={() => toggleSelect(asset.id)} />
-                    </td>
                     <td className="px-4 py-3 text-[13px] font-medium text-card-foreground">{asset.name}</td>
                     <td className="px-4 py-3 text-[12px] text-muted-foreground">{asset.type}</td>
-                    <td className="px-4 py-3 text-[12px] text-muted-foreground">
-                      {building?.name || <span className="italic text-muted-foreground/60">Unassigned</span>}
-                    </td>
-                    <td className="px-4 py-3 text-[12px] text-muted-foreground">
-                      {floor?.name || <span className="italic text-muted-foreground/60">—</span>}
-                    </td>
+                    <td className="px-4 py-3 text-[12px] text-muted-foreground">{building?.name}</td>
+                    <td className="px-4 py-3 text-[12px] text-muted-foreground">{floor?.name}</td>
                     <td className="px-4 py-3"><StatusBadge status={asset.status} size="sm" /></td>
                     <td className="px-4 py-3 text-[12px] text-muted-foreground">
                       {new Date(asset.lastUpdated).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
@@ -233,16 +159,6 @@ export default function AssetsPage() {
                         <QrCode className="w-3.5 h-3.5" /> View
                       </Button>
                     </td>
-                    <td className="px-4 py-3">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 gap-1.5 text-xs"
-                        onClick={() => openAssignSingle(asset.id)}
-                      >
-                        <MapPin className="w-3.5 h-3.5" /> Assign
-                      </Button>
-                    </td>
                   </tr>
                 );
               })}
@@ -251,44 +167,7 @@ export default function AssetsPage() {
         </div>
       </div>
 
-      {/* Assign Dialog */}
-      <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              Assign {assignTargets.length > 1 ? `${assignTargets.length} Assets` : "Asset"} to Location
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label>Building</Label>
-              <Select value={assignBuilding} onValueChange={(v) => { setAssignBuilding(v); setAssignFloor(""); }}>
-                <SelectTrigger><SelectValue placeholder="Select a building" /></SelectTrigger>
-                <SelectContent>
-                  {buildings.map((b) => (
-                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Floor</Label>
-              <Select value={assignFloor} onValueChange={setAssignFloor} disabled={!assignBuilding}>
-                <SelectTrigger><SelectValue placeholder={assignBuilding ? "Select a floor" : "Pick a building first"} /></SelectTrigger>
-                <SelectContent>
-                  {assignFloorOptions.map((f) => (
-                    <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" size="sm" onClick={() => setAssignOpen(false)}>Cancel</Button>
-              <Button size="sm" onClick={handleAssign}>Assign</Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+
 
       {/* Import from Excel Dialog */}
       <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
@@ -343,7 +222,16 @@ export default function AssetsPage() {
                 />
               </div>
               <p className="text-xs text-muted-foreground">Asset ID: <span className="font-mono text-foreground">{qrAsset.id}</span></p>
-              <Button size="sm" variant="outline" onClick={() => window.print()}>Print</Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const svg = document.querySelector(".qr-print svg") as SVGElement | null;
+                  window.print();
+                }}
+              >
+                Print
+              </Button>
             </div>
           )}
         </DialogContent>
