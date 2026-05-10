@@ -66,12 +66,48 @@ export default function AssetsPage() {
     ? floors.filter((f) => f.buildingId === buildingFilter)
     : [];
 
-  const filtered = assets.filter((a) => {
+  const filtered = assetsList.filter((a) => {
     if (statusFilter !== "all" && a.status !== statusFilter) return false;
     if (buildingFilter !== "all" && a.buildingId !== buildingFilter) return false;
     if (floorFilter !== "all" && a.floorId !== floorFilter) return false;
     return true;
   });
+
+  const toggleSelectMode = () => {
+    if (selectMode && selectedIds.size > 0) {
+      setConfirmDeleteOpen(true);
+      return;
+    }
+    setSelectMode((m) => !m);
+    setSelectedIds(new Set());
+  };
+
+  const toggleRow = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every((a) => selectedIds.has(a.id));
+  const toggleSelectAll = () => {
+    if (allFilteredSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map((a) => a.id)));
+    }
+  };
+
+  const confirmDelete = () => {
+    const count = selectedIds.size;
+    setAssetsList((prev) => prev.filter((a) => !selectedIds.has(a.id)));
+    toast({ title: "Assets deleted", description: `${count} asset${count === 1 ? "" : "s"} removed.` });
+    setSelectedIds(new Set());
+    setSelectMode(false);
+    setConfirmDeleteOpen(false);
+  };
 
   const handleBuildingChange = (value: string) => {
     setBuildingFilter(value);
