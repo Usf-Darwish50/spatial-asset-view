@@ -28,16 +28,21 @@ import { toast } from "@/hooks/use-toast";
 
 export default function AssetsPage() {
   const navigate = useNavigate();
+  const [assetsList, setAssetsList] = useState<Asset[]>(initialAssets);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [buildingFilter, setBuildingFilter] = useState<string>("all");
   const [floorFilter, setFloorFilter] = useState<string>("all");
-  
+
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [qrAsset, setQrAsset] = useState<Asset | null>(null);
   const [assignAsset, setAssignAsset] = useState<Asset | null>(null);
   const [assignBuilding, setAssignBuilding] = useState<string>("");
   const [assignFloor, setAssignFloor] = useState<string>("");
+
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const openAssign = (asset: Asset) => {
     setAssignAsset(asset);
