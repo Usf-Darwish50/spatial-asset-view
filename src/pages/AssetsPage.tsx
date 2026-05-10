@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, FileSpreadsheet, Download, QrCode, MapPin } from "lucide-react";
+import { Plus, FileSpreadsheet, Download, QrCode, MapPin, Trash2, CheckSquare, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
