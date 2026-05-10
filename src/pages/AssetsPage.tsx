@@ -176,9 +176,31 @@ export default function AssetsPage() {
               </SelectContent>
             </Select>
           )}
+          <Button
+            size="sm"
+            variant={selectMode ? "destructive" : "outline"}
+            className="h-8 text-xs gap-1.5 ml-auto"
+            onClick={toggleSelectMode}
+            disabled={selectMode && selectedIds.size === 0 && filtered.length === 0}
+          >
+            {selectMode ? (
+              selectedIds.size > 0 ? (
+                <><Trash2 className="w-3.5 h-3.5" /> Delete ({selectedIds.size})</>
+              ) : (
+                <><X className="w-3.5 h-3.5" /> Cancel</>
+              )
+            ) : (
+              <><CheckSquare className="w-3.5 h-3.5" /> Select</>
+            )}
+          </Button>
+          {selectMode && selectedIds.size === 0 && (
+            <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => { setSelectMode(false); setSelectedIds(new Set()); }}>
+              Exit
+            </Button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" className="h-8 text-xs gap-1.5 ml-auto">
+              <Button size="sm" className="h-8 text-xs gap-1.5">
                 <Plus className="w-3.5 h-3.5" /> Add Asset
               </Button>
             </DropdownMenuTrigger>
@@ -202,6 +224,11 @@ export default function AssetsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
+                {selectMode && (
+                  <th className="px-4 py-2.5 w-10">
+                    <Checkbox checked={allFilteredSelected} onCheckedChange={toggleSelectAll} />
+                  </th>
+                )}
                 {["Asset", "Type", "Building", "Floor", "Status", "Last Updated", "Updated By", "QR Code", "Actions"].map((h) => (
                   <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
                 ))}
@@ -211,8 +238,18 @@ export default function AssetsPage() {
               {filtered.map((asset) => {
                 const building = buildings.find((b) => b.id === asset.buildingId);
                 const floor = floors.find((f) => f.id === asset.floorId);
+                const checked = selectedIds.has(asset.id);
                 return (
-                  <tr key={asset.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                  <tr
+                    key={asset.id}
+                    onClick={() => selectMode && toggleRow(asset.id)}
+                    className={`border-b border-border last:border-0 hover:bg-muted/30 transition-colors ${selectMode ? "cursor-pointer" : ""} ${checked ? "bg-muted/40" : ""}`}
+                  >
+                    {selectMode && (
+                      <td className="px-4 py-3">
+                        <Checkbox checked={checked} onCheckedChange={() => toggleRow(asset.id)} />
+                      </td>
+                    )}
                     <td className="px-4 py-3 text-[13px] font-medium text-card-foreground">{asset.name}</td>
                     <td className="px-4 py-3 text-[12px] text-muted-foreground">{asset.type}</td>
                     <td className="px-4 py-3 text-[12px] text-muted-foreground">{building?.name || <span className="italic text-muted-foreground/60">Unassigned</span>}</td>
