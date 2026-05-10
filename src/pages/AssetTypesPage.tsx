@@ -1,11 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Boxes, Plus } from "lucide-react";
+import { Boxes, Plus, Trash2 } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { assets, assetTypes as initialTypes } from "@/data/mock";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 
@@ -14,6 +24,7 @@ export default function AssetTypesPage() {
   const [types, setTypes] = useState<string[]>(initialTypes);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   const handleAdd = () => {
     const trimmed = name.trim();
@@ -26,6 +37,21 @@ export default function AssetTypesPage() {
     toast({ title: "Asset type added", description: `${trimmed} has been created.` });
     setName("");
     setOpen(false);
+  };
+
+  const targetAssets = deleteTarget ? assets.filter((a) => a.type === deleteTarget) : [];
+  const canDelete = targetAssets.length === 0;
+
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    if (!canDelete) {
+      toast({ title: "Delete failed", description: `${deleteTarget} has assets under it.`, variant: "destructive" });
+      setDeleteTarget(null);
+      return;
+    }
+    setTypes((prev) => prev.filter((t) => t !== deleteTarget));
+    toast({ title: "Asset type deleted", description: `${deleteTarget} has been removed.` });
+    setDeleteTarget(null);
   };
 
   return (
@@ -47,17 +73,24 @@ export default function AssetTypesPage() {
             const subCategories = new Set(typeAssets.map((a) => a.name)).size;
 
             return (
-              <button
+              <div
                 key={type}
                 onClick={() => navigate(`/asset-types/${encodeURIComponent(type)}`)}
-                className="bg-card rounded-xl p-5 border border-border shadow-sm hover:shadow-md hover:border-primary/30 transition-all text-left group"
+                className="relative bg-card rounded-xl p-5 border border-border shadow-sm hover:shadow-md hover:border-primary/30 transition-all text-left group cursor-pointer"
               >
+                <button
+                  title="Delete asset type"
+                  onClick={(e) => { e.stopPropagation(); setDeleteTarget(type); }}
+                  className="absolute top-3 right-3 p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
                 <div className="flex items-start justify-between mb-3">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                     <Boxes className="w-5 h-5 text-primary" />
                   </div>
                   {downCount > 0 && (
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-status-down/10 text-status-down">
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-status-down/10 text-status-down mr-8">
                       {downCount} down
                     </span>
                   )}
@@ -68,7 +101,7 @@ export default function AssetTypesPage() {
                   <span>{typeAssets.length} assets</span>
                   <span>{subCategories} items</span>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
@@ -91,6 +124,29 @@ export default function AssetTypesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {deleteTarget}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {canDelete
+                ? `This will permanently delete the "${deleteTarget}" category and all its empty subtypes.`
+                : `"${deleteTarget}" can't be deleted because it has ${targetAssets.length} asset${targetAssets.length === 1 ? "" : "s"} under one or more of its subtypes.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={!canDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }

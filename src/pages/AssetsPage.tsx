@@ -1,32 +1,48 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, FileSpreadsheet, Download, QrCode, MapPin } from "lucide-react";
+import { Plus, FileSpreadsheet, Download, QrCode, MapPin, Trash2, CheckSquare, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { StatusBadge } from "@/components/StatusBadge";
-import { assets, buildings, floors, AssetStatus, assetTypes, Asset } from "@/data/mock";
+import { assets as initialAssets, buildings, floors, AssetStatus, assetTypes, Asset } from "@/data/mock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 
 export default function AssetsPage() {
   const navigate = useNavigate();
+  const [assetsList, setAssetsList] = useState<Asset[]>(initialAssets);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [buildingFilter, setBuildingFilter] = useState<string>("all");
   const [floorFilter, setFloorFilter] = useState<string>("all");
-  
+
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [qrAsset, setQrAsset] = useState<Asset | null>(null);
   const [assignAsset, setAssignAsset] = useState<Asset | null>(null);
   const [assignBuilding, setAssignBuilding] = useState<string>("");
   const [assignFloor, setAssignFloor] = useState<string>("");
+
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const openAssign = (asset: Asset) => {
     setAssignAsset(asset);
@@ -50,12 +66,48 @@ export default function AssetsPage() {
     ? floors.filter((f) => f.buildingId === buildingFilter)
     : [];
 
-  const filtered = assets.filter((a) => {
+  const filtered = assetsList.filter((a) => {
     if (statusFilter !== "all" && a.status !== statusFilter) return false;
     if (buildingFilter !== "all" && a.buildingId !== buildingFilter) return false;
     if (floorFilter !== "all" && a.floorId !== floorFilter) return false;
     return true;
   });
+
+  const toggleSelectMode = () => {
+    if (selectMode && selectedIds.size > 0) {
+      setConfirmDeleteOpen(true);
+      return;
+    }
+    setSelectMode((m) => !m);
+    setSelectedIds(new Set());
+  };
+
+  const toggleRow = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every((a) => selectedIds.has(a.id));
+  const toggleSelectAll = () => {
+    if (allFilteredSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map((a) => a.id)));
+    }
+  };
+
+  const confirmDelete = () => {
+    const count = selectedIds.size;
+    setAssetsList((prev) => prev.filter((a) => !selectedIds.has(a.id)));
+    toast({ title: "Assets deleted", description: `${count} asset${count === 1 ? "" : "s"} removed.` });
+    setSelectedIds(new Set());
+    setSelectMode(false);
+    setConfirmDeleteOpen(false);
+  };
 
   const handleBuildingChange = (value: string) => {
     setBuildingFilter(value);
@@ -124,9 +176,31 @@ export default function AssetsPage() {
               </SelectContent>
             </Select>
           )}
+          <Button
+            size="sm"
+            variant={selectMode ? "destructive" : "outline"}
+            className="h-8 text-xs gap-1.5 ml-auto"
+            onClick={toggleSelectMode}
+            disabled={selectMode && selectedIds.size === 0 && filtered.length === 0}
+          >
+            {selectMode ? (
+              selectedIds.size > 0 ? (
+                <><Trash2 className="w-3.5 h-3.5" /> Delete ({selectedIds.size})</>
+              ) : (
+                <><X className="w-3.5 h-3.5" /> Cancel</>
+              )
+            ) : (
+              <><CheckSquare className="w-3.5 h-3.5" /> Select</>
+            )}
+          </Button>
+          {selectMode && selectedIds.size === 0 && (
+            <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => { setSelectMode(false); setSelectedIds(new Set()); }}>
+              Exit
+            </Button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" className="h-8 text-xs gap-1.5 ml-auto">
+              <Button size="sm" className="h-8 text-xs gap-1.5">
                 <Plus className="w-3.5 h-3.5" /> Add Asset
               </Button>
             </DropdownMenuTrigger>
@@ -150,6 +224,11 @@ export default function AssetsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
+                {selectMode && (
+                  <th className="px-4 py-2.5 w-10">
+                    <Checkbox checked={allFilteredSelected} onCheckedChange={toggleSelectAll} />
+                  </th>
+                )}
                 {["Asset", "Type", "Building", "Floor", "Status", "Last Updated", "Updated By", "QR Code", "Actions"].map((h) => (
                   <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
                 ))}
@@ -159,8 +238,18 @@ export default function AssetsPage() {
               {filtered.map((asset) => {
                 const building = buildings.find((b) => b.id === asset.buildingId);
                 const floor = floors.find((f) => f.id === asset.floorId);
+                const checked = selectedIds.has(asset.id);
                 return (
-                  <tr key={asset.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                  <tr
+                    key={asset.id}
+                    onClick={() => selectMode && toggleRow(asset.id)}
+                    className={`border-b border-border last:border-0 hover:bg-muted/30 transition-colors ${selectMode ? "cursor-pointer" : ""} ${checked ? "bg-muted/40" : ""}`}
+                  >
+                    {selectMode && (
+                      <td className="px-4 py-3">
+                        <Checkbox checked={checked} onCheckedChange={() => toggleRow(asset.id)} />
+                      </td>
+                    )}
                     <td className="px-4 py-3 text-[13px] font-medium text-card-foreground">{asset.name}</td>
                     <td className="px-4 py-3 text-[12px] text-muted-foreground">{asset.type}</td>
                     <td className="px-4 py-3 text-[12px] text-muted-foreground">{building?.name || <span className="italic text-muted-foreground/60">Unassigned</span>}</td>
@@ -312,6 +401,27 @@ export default function AssetsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk delete confirmation */}
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} asset{selectedIds.size === 1 ? "" : "s"}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The selected assets will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
