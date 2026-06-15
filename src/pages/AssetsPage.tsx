@@ -272,13 +272,28 @@ export default function AssetsPage() {
                       </Button>
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        title="Assign to building & floor"
-                        onClick={() => openAssign(asset)}
-                        className="p-1.5 rounded-md hover:bg-secondary transition-colors text-primary"
-                      >
-                        <MapPin className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          title="View details"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDetailAsset(asset);
+                          }}
+                          className="p-1.5 rounded-md hover:bg-secondary transition-colors text-primary"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          title="Assign to building & floor"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openAssign(asset);
+                          }}
+                          className="p-1.5 rounded-md hover:bg-secondary transition-colors text-primary"
+                        >
+                          <MapPin className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
