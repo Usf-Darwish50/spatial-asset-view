@@ -244,8 +244,8 @@ export default function AssetsPage() {
                 return (
                   <tr
                     key={asset.id}
-                    onClick={() => selectMode && toggleRow(asset.id)}
-                    className={`border-b border-border last:border-0 hover:bg-muted/30 transition-colors ${selectMode ? "cursor-pointer" : ""} ${checked ? "bg-muted/40" : ""}`}
+                    onClick={() => selectMode ? toggleRow(asset.id) : setDetailAsset(asset)}
+                    className={`border-b border-border last:border-0 hover:bg-muted/30 transition-colors cursor-pointer ${checked ? "bg-muted/40" : ""}`}
                   >
                     {selectMode && (
                       <td className="px-4 py-3">
