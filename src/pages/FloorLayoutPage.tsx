@@ -132,13 +132,11 @@ export default function FloorLayoutPage() {
           onUpdateStatus={(a) => setStatusDialogAsset(a)}
           onAddToMap={handleAddToMap}
         />
-        {selectedAsset && (
-          <AssetDetailPanel
-            asset={selectedAsset}
-            onClose={() => setSelectedAsset(null)}
-            onStatusChange={handleStatusChange}
-          />
-        )}
+        <AssetDetailDialog
+          asset={selectedAsset}
+          open={!!selectedAsset}
+          onClose={() => setSelectedAsset(null)}
+        />
       </div>
       <UpdateStatusDialog
         asset={statusDialogAsset}
