@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, FileSpreadsheet, Download, QrCode, MapPin, Trash2, CheckSquare, X } from "lucide-react";
+import { Plus, FileSpreadsheet, Download, QrCode, MapPin, Trash2, CheckSquare, X, Eye } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { StatusBadge } from "@/components/StatusBadge";
+import { AssetDetailDialog } from "@/components/AssetDetailDialog";
 import { assets as initialAssets, buildings, floors, AssetStatus, assetTypes, Asset } from "@/data/mock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ export default function AssetsPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [detailAsset, setDetailAsset] = useState<Asset | null>(null);
 
   const openAssign = (asset: Asset) => {
     setAssignAsset(asset);
@@ -242,8 +244,8 @@ export default function AssetsPage() {
                 return (
                   <tr
                     key={asset.id}
-                    onClick={() => selectMode && toggleRow(asset.id)}
-                    className={`border-b border-border last:border-0 hover:bg-muted/30 transition-colors ${selectMode ? "cursor-pointer" : ""} ${checked ? "bg-muted/40" : ""}`}
+                    onClick={() => selectMode ? toggleRow(asset.id) : setDetailAsset(asset)}
+                    className={`border-b border-border last:border-0 hover:bg-muted/30 transition-colors cursor-pointer ${checked ? "bg-muted/40" : ""}`}
                   >
                     {selectMode && (
                       <td className="px-4 py-3">
@@ -264,19 +266,37 @@ export default function AssetsPage() {
                         variant="ghost"
                         size="sm"
                         className="h-7 px-2 gap-1.5 text-xs"
-                        onClick={() => setQrAsset(asset)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQrAsset(asset);
+                        }}
                       >
                         <QrCode className="w-3.5 h-3.5" /> View
                       </Button>
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        title="Assign to building & floor"
-                        onClick={() => openAssign(asset)}
-                        className="p-1.5 rounded-md hover:bg-secondary transition-colors text-primary"
-                      >
-                        <MapPin className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          title="View details"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDetailAsset(asset);
+                          }}
+                          className="p-1.5 rounded-md hover:bg-secondary transition-colors text-primary"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          title="Assign to building & floor"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openAssign(asset);
+                          }}
+                          className="p-1.5 rounded-md hover:bg-secondary transition-colors text-primary"
+                        >
+                          <MapPin className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -420,8 +440,14 @@ export default function AssetsPage() {
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
+      </AlertDialogContent>
       </AlertDialog>
+
+      <AssetDetailDialog
+        asset={detailAsset}
+        open={!!detailAsset}
+        onClose={() => setDetailAsset(null)}
+      />
     </AppLayout>
   );
 }
