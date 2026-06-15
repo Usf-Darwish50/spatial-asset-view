@@ -266,7 +266,10 @@ export default function AssetsPage() {
                         variant="ghost"
                         size="sm"
                         className="h-7 px-2 gap-1.5 text-xs"
-                        onClick={() => setQrAsset(asset)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQrAsset(asset);
+                        }}
                       >
                         <QrCode className="w-3.5 h-3.5" /> View
                       </Button>
