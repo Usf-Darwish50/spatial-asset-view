@@ -4,7 +4,7 @@ import { Plus, Crosshair } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { LayoutCanvas } from "@/components/LayoutCanvas";
-import { AssetDetailPanel } from "@/components/AssetDetailPanel";
+import { AssetDetailDialog } from "@/components/AssetDetailDialog";
 import { FloorAssetsTable } from "@/components/FloorAssetsTable";
 import { UpdateStatusDialog } from "@/components/UpdateStatusDialog";
 import { buildings, floors, assets as initialAssets, Asset, AssetStatus } from "@/data/mock";
