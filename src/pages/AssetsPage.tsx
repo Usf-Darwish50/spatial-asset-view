@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, FileSpreadsheet, Download, QrCode, MapPin, Trash2, CheckSquare, X } from "lucide-react";
+import { Plus, FileSpreadsheet, Download, QrCode, MapPin, Trash2, CheckSquare, X, Eye } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { AppLayout } from "@/components/AppLayout";
 import { TopBar } from "@/components/TopBar";
 import { StatusBadge } from "@/components/StatusBadge";
+import { AssetDetailDialog } from "@/components/AssetDetailDialog";
 import { assets as initialAssets, buildings, floors, AssetStatus, assetTypes, Asset } from "@/data/mock";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ export default function AssetsPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [detailAsset, setDetailAsset] = useState<Asset | null>(null);
 
   const openAssign = (asset: Asset) => {
     setAssignAsset(asset);
