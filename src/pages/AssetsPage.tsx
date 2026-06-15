@@ -437,8 +437,14 @@ export default function AssetsPage() {
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
+      </AlertDialogContent>
       </AlertDialog>
+
+      <AssetDetailDialog
+        asset={detailAsset}
+        open={!!detailAsset}
+        onClose={() => setDetailAsset(null)}
+      />
     </AppLayout>
   );
 }
