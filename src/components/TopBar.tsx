@@ -1,5 +1,6 @@
 import { Search, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import productLogo from "@/assets/e1-fms-product.png";
 
 interface TopBarProps {
   title: string;
@@ -10,9 +11,16 @@ interface TopBarProps {
 export function TopBar({ title, subtitle, actions }: TopBarProps) {
   return (
     <header className="h-14 bg-topbar-bg border-b border-topbar-border flex items-center justify-between px-6 shrink-0">
-      <div>
-        <h1 className="text-sm font-semibold text-foreground">{title}</h1>
-        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+      <div className="flex items-center gap-4">
+        {/* Product mark — persistent "you are in Eazly One FMS" anchor */}
+        <div className="flex items-center gap-2 pr-4 border-r border-topbar-border">
+          <img src={productLogo} alt="e1 FMS" className="h-7 w-auto" />
+          <span className="text-[13px] font-bold tracking-wide text-foreground">FMS</span>
+        </div>
+        <div>
+          <h1 className="text-sm font-semibold text-foreground">{title}</h1>
+          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+        </div>
       </div>
       <div className="flex items-center gap-3">
         <div className="relative">

@@ -19,10 +19,16 @@ export function AppSidebar() {
 
   return (
     <aside className="w-64 min-h-screen bg-sidebar flex flex-col border-r border-sidebar-border shrink-0">
-      {/* Logo */}
-      <div className="h-16 flex items-center gap-2.5 px-5 border-b border-sidebar-border">
-        <img src={ntgLogo} alt="NTG Assets Vision" className="h-10 w-auto" />
-        <span className="text-sm font-semibold text-foreground">NTG Assets Vision</span>
+      {/* Account block — whose workspace you are viewing */}
+      <div className="px-4 py-3 border-b border-sidebar-border">
+        <p className="text-[10px] uppercase tracking-wider text-sidebar-muted mb-2">Account</p>
+        <div className="flex items-center gap-2.5">
+          <img src={ntgLogo} alt="NTG" className="h-9 w-9 rounded-md object-cover" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-semibold text-sidebar-accent-foreground truncate">NTG</p>
+            <p className="text-[11px] text-sidebar-muted truncate">Assets Vision Workspace</p>
+          </div>
+        </div>
       </div>
 
       {/* Nav */}
@@ -45,7 +51,7 @@ export function AppSidebar() {
       </nav>
 
       {/* User */}
-      <div className="sticky bottom-0 p-3 border-t border-sidebar-border bg-sidebar">
+      <div className="p-3 border-t border-sidebar-border bg-sidebar">
         <div className="flex items-center gap-2.5 px-3 py-2">
           <div className="w-7 h-7 rounded-full bg-sidebar-primary flex items-center justify-center text-[11px] font-semibold text-sidebar-primary-foreground">
             JS
@@ -67,6 +73,10 @@ export function AppSidebar() {
             <LogOut className="w-4 h-4" />
           </button>
         </div>
+        {/* Platform attribution */}
+        <p className="px-3 pt-2 text-[10px] text-sidebar-muted text-center">
+          Powered by <span className="font-semibold">Eazly One</span>
+        </p>
       </div>
     </aside>
   );

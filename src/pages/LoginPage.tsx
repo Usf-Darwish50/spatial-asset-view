@@ -1,11 +1,12 @@
 import { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import logo from "@/assets/ntg-logo.jpeg";
+import platformLogo from "@/assets/eazly-one-platform.png";
+import productLogo from "@/assets/e1-fms-product.png";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -34,18 +35,29 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-sidebar to-background p-4">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background via-sidebar to-background p-4">
+      {/* Platform lockup — leads the screen */}
+      <div className="w-full max-w-md mb-6">
+        <img
+          src={platformLogo}
+          alt="Eazly One — A Connected Platform"
+          className="w-full h-auto"
+        />
+      </div>
+
       <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="space-y-4 text-center">
-          <div className="flex justify-center">
-            <img src={logo} alt="NTG Assets Vision logo" className="h-16 w-auto" />
+        <CardContent className="pt-6">
+          {/* Product mark — what you're signing into */}
+          <div className="flex flex-col items-center text-center mb-6">
+            <img src={productLogo} alt="e1 FMS" className="h-20 w-auto" />
+            <p className="text-xs tracking-[0.2em] text-muted-foreground mt-1">
+              FACILITY MANAGEMENT SYSTEM
+            </p>
+            <p className="text-xs text-muted-foreground mt-3">
+              Sign in to continue to your workspace
+            </p>
           </div>
-          <div className="space-y-1">
-            <CardTitle className="text-2xl">NTG Assets Vision</CardTitle>
-            <CardDescription>Sign in to continue to your workspace</CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
@@ -77,6 +89,10 @@ export default function LoginPage() {
           </form>
         </CardContent>
       </Card>
+
+      <p className="mt-6 text-[11px] text-muted-foreground">
+        Powered by <span className="font-semibold">Eazly One</span> — A Connected Platform
+      </p>
     </main>
   );
 }
